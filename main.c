@@ -1,86 +1,153 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "main.h"
-
 //---------------------------------------------------------------
-//Função que cria tabela:
+
+
+void gera_saida(struct tabela *tabela1, struct tabela *tabela2) {
+    struct saida vetor[22];  
+    int qtd = 0;
+
+    for (int i = 0; i < 11; i++) {
+        if (tabela1[i].vazio == 0) {  //aqui adiciona valores de t1 pra saida
+            vetor[qtd].chave = tabela1[i].chave;
+            vetor[qtd].posicao = i;
+            vetor[qtd].tabela[0] = 'T';
+            vetor[qtd].tabela[1] = '1';
+            vetor[qtd].tabela[2] = '\0';
+            qtd++;
+        }
+    }
+
+    for (int i = 0; i < 11; i++) {
+        if (tabela2[i].vazio == 0) { //aqui adiciona valores de t2 pra saida
+            vetor[qtd].chave = tabela2[i].chave;
+            vetor[qtd].posicao = i;
+            vetor[qtd].tabela[0] = 'T';
+            vetor[qtd].tabela[1] = '2';
+            vetor[qtd].tabela[2] = '\0';
+            qtd++;
+        }
+    }
+
+    for (int i = 0; i < qtd - 1; i++) {
+        for (int j = i + 1; j < qtd; j++) { //ordenacao
+            if (vetor[i].chave > vetor[j].chave ||
+               (vetor[i].chave == vetor[j].chave && vetor[i].tabela[1] > vetor[j].tabela[1]) ||
+               (vetor[i].chave == vetor[j].chave && vetor[i].tabela[1] == vetor[j].tabela[1] && vetor[i].posicao > vetor[j].posicao)) {
+                struct saida temp = vetor[i];
+                vetor[i] = vetor[j];
+                vetor[j] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < qtd; i++) { //formatacao de saida
+        printf("%d,%s,%d\n", vetor[i].chave, vetor[i].tabela, vetor[i].posicao);
+    }
+}
+
 struct tabela *cria_tabela() {
-	struct tabela *t = malloc(sizeof(struct tabela)*11);
-
-	if (!t) {
-		printf("erro ao alocar memória para criar tabela.\n");
-		return NULL;
-	}
-
-//inicializando todos a tabela como vazia em todas as suas posições:
-	for (int i=0 ; i<11 ; i++)
-		t[i].vazio = 1;
-
-	return t;
+    struct tabela *t = malloc(sizeof(struct tabela) * 11);
+    if (!t) {
+        printf("Erro ao alocar tabela.\n");
+        exit(1);
+    }
+    for (int i = 0; i < 11; i++) {
+        t[i].vazio = 1;
+        t[i].excluido = 0;
+        t[i].chave = -1;
+    }
+    return t;
 }
+
 //---------------------------------------------------------------
-//Função que faz a função h2:
-int funcao_h2(int h1, struct tabela *tabela1, int input2) {
-	//salvando a chave que vai ir para a tabela 2:
-	int temporario = tabela1[h1].chave;
-	//substituindo o valor na tabela1 pela nova chave:
-	tabela1[h1].chave = input2;
-	double p1 = temporario*0.9;
-	double p2 = p1 - (int)p1;
-	int h2 = (int)(11*p2);
-	return h2;
+//Calcula h2:
+int calcular_h2(int chave) {
+    double p = chave * 0.9;
+    double parte_decimal = p - (int)p;
+    return (int)(11 * parte_decimal);
 }
+
 //---------------------------------------------------------------
-//Função que printa tabelas:
+//Printa tabelas:
 void funcao_printa_tabelas(struct tabela *tabela1, struct tabela *tabela2) {
-	printf("\n----------------- TABELA 1 -----------------\n");
-	printf("| POSIÇÃO | CHAVE |\n");
-	printf("--------------------------\n");
-	for (int i = 0; i < 11; i++) {
-		printf("| %7d | %5d |\n", i, tabela1[i].chave);
-	}
-	printf("--------------------------\n");
-	printf("\n----------------- TABELA 2 -----------------\n");
-	printf("| POSIÇÃO | CHAVE |\n");
-	printf("--------------------------\n");
-	for (int i = 0; i < 11; i++) {
-		printf("| %7d | %5d |\n", i, tabela2[i].chave);
-	}
-	printf("--------------------------\n");
+    printf("\n----------------- TABELA 1 -----------------\n");
+    printf("| POSIÇÃO | CHAVE |\n");
+    printf("--------------------------\n");
+    for (int i = 0; i < 11; i++) {
+        printf("| %7d | %5d |\n", i, tabela1[i].chave);
+    }
+    printf("--------------------------\n");
+    printf("\n----------------- TABELA 2 -----------------\n");
+    printf("| POSIÇÃO | CHAVE |\n");
+    printf("--------------------------\n");
+    for (int i = 0; i < 11; i++) {
+        printf("| %7d | %5d |\n", i, tabela2[i].chave);
+    }
+    printf("--------------------------\n");
 }
+
 //---------------------------------------------------------------
-//Função main:
+//Exclusão:
+void exclusao_tabela(int chave, struct tabela *tabela1, struct tabela *tabela2) {
+    int h1 = chave % 11;
+    int h2 = calcular_h2(chave);
+
+    if (tabela2[h2].chave == chave && tabela2[h2].vazio == 0) {
+        tabela2[h2].chave = -1;
+        tabela2[h2].vazio = 1;
+    } else if (tabela1[h1].chave == chave && tabela1[h1].vazio == 0) {
+        tabela1[h1].chave = -1;
+        tabela1[h1].excluido = 1;
+        tabela1[h1].vazio = 1;
+    }
+}
+
+//---------------------------------------------------------------
+//Main:
 int main() {
+    struct tabela *tabela1 = cria_tabela();
+    struct tabela *tabela2 = cria_tabela();
 
-	struct tabela *tabela1 = cria_tabela();
-	struct tabela *tabela2 = cria_tabela();
-
-	char input1;
-	int input2;
+    int chave;
 	int controle = 1;
-	while(controle) {
-		scanf(" %c %d", &input1, &input2);
-		if (input1 == 'i') {
-			int h1 = input2 % 11;
-			//se está vazio:
-			if (tabela1[h1].vazio == 1) {
-				tabela1[h1].chave = input2;
-				tabela1[h1].vazio = 0;
-			}
-			//se a posição já estiver sendo ocupada na tabela1:
-			else {
-				//salvando a chave que vai ir para a tabela 2:
-				int temporario = tabela1[h1].chave;
-				//chamando função h2:
-				int h2 = funcao_h2(h1, tabela1, input2);
-				tabela2[h2].chave = temporario;
-				tabela2[h2].vazio = 0;
-			}
-		}
-		else
-			controle = 0;
-	}
+	char input1;
+    while(controle) {
+		scanf(" %c %d", &input1, &chave);
+        if(input1 == 'i') {
+            int h1 = chave % 11;
 
-	funcao_printa_tabelas(tabela1, tabela2);
-	return 0;
+            if (tabela1[h1].vazio == 1 || tabela1[h1].excluido == 1) {
+                tabela1[h1].chave = chave;
+                tabela1[h1].vazio = 0;
+                tabela1[h1].excluido = 0;
+            }
+            else {
+                int antiga = tabela1[h1].chave;
+                int h2_antiga = calcular_h2(antiga);
+
+                tabela2[h2_antiga].chave = antiga;
+                tabela2[h2_antiga].vazio = 0;
+
+                tabela1[h1].chave = chave;
+                tabela1[h1].vazio = 0;
+                tabela1[h1].excluido = 0;
+            }
+        }
+
+        else if(input1 == 'r') {
+            exclusao_tabela(chave, tabela1, tabela2);
+        }
+		else{
+			controle = 0;
+		}
+    }
+
+    gera_saida(tabela1,tabela2);
+
+    free(tabela1);
+    free(tabela2);
+
+    return 0;
 }

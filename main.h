@@ -4,6 +4,13 @@
 struct tabela {
 	int chave;
 	int vazio;
+	int excluido;
+};
+
+struct saida {
+    int chave;
+    char tabela[3]; 
+    int posicao;
 };
 
 #endif
