@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "tabela.h"
 
 
@@ -8,7 +9,7 @@ int main(int argc, char *argv[]) {
         printf("Nome: Matheus Gastal Magalhães\n");
         printf("GRR: GRR20244620\n");
         printf("login: mgm24\n");
-        printf("Nome: Antônio da Ressureição filho\n");
+        printf("Nome: Antonio da Ressurreição Filho\n");
         printf("GRR: GRR20245202\n");
         printf("login: arf24\n");
         return 0;
@@ -17,10 +18,8 @@ int main(int argc, char *argv[]) {
     struct tabela *tabela2 = cria_tabela();
 
     int chave;
-	int controle = 1;
 	char input1;
-    while(controle) {
-		scanf(" %c %d", &input1, &chave);
+    while(scanf(" %c %d", &input1, &chave) == 2) {
         if(input1 == 'i') {
             int h1 = chave % 11;
 
@@ -46,7 +45,7 @@ int main(int argc, char *argv[]) {
             exclusao_tabela(chave, tabela1, tabela2);
         }
 		else{
-			controle = 0;
+			break;
 		}
     }
 
