@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         else if(input1 == 'r') {
             exclusao_tabela(chave, tabela1, tabela2);
         }
-		else{
+        else {
 			break;
 		}
     }
